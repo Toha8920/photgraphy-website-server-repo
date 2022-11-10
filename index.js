@@ -53,7 +53,6 @@ async function run() {
 
         app.get('/services/:id', async (req, res) => {
             const id = req.params.id;
-
             const query = { _id: ObjectId(id) };
             const service = await serviceCollection.findOne(query);
             res.send(service)
@@ -71,7 +70,7 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/review', verifyJWT, async (req, res) => {
+        app.get('/review', async (req, res) => {
             const decoded = req.decoded;
 
             if (decoded.email !== req.query.email) {
@@ -104,7 +103,7 @@ async function run() {
             res.send(result)
         })
 
-        app.patch('/updateReview/:id', verifyJWT, async (req, res) => {
+        app.patch('/updateReview/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await reviewCollection.updateOne(query, { $set: req.body });
