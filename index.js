@@ -42,6 +42,20 @@ async function run() {
             res.send({ token })
         })
 
+        app.get('/review/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const decoded = req.decoded;
+            console.log(decoded)
+
+            if (decoded.email !== req.query.email) {
+                res.status(403).send({ message: 'unauthorized access' })
+            }
+            console.log(email)
+            const query = { email: email };
+            const result = await reviewCollection.find(query);
+            res.send(result)
+        })
+
         app.get('/services', async (req, res) => {
             const size = parseInt(req.query.size);
             const query = {};
@@ -71,11 +85,7 @@ async function run() {
         })
 
         app.get('/review', async (req, res) => {
-            const decoded = req.decoded;
 
-            if (decoded.email !== req.query.email) {
-                res.status(403).send({ message: 'unauthorized access' })
-            }
             let query = {};
             if (req.query.email) {
                 query = {
@@ -89,7 +99,7 @@ async function run() {
 
 
 
-        app.delete('/review/:id', verifyJWT, async (req, res) => {
+        app.delete('/review/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: ObjectId(id) };
             const result = await reviewCollection.deleteOne(query);
