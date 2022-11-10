@@ -104,15 +104,16 @@ async function run() {
         })
         app.get('/review/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
-            const decoded = req.decoded;
+            console.log(email)
+            const decoded = req.decoded.email;
             console.log(decoded)
 
             if (decoded.email !== req.query.email) {
                 return res.status(403).send({ message: 'unauthorized access' })
             }
-            console.log(email)
+
             const query = { email: email };
-            const result = await reviewCollection.find(query);
+            const result = await reviewCollection.find(query).toArray();
             res.send(result)
         })
 
