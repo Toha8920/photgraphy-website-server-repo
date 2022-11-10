@@ -42,25 +42,13 @@ async function run() {
             res.send({ token })
         })
 
-        app.get('/review/:email', verifyJWT, async (req, res) => {
-            const email = req.params.email;
-            const decoded = req.decoded;
-            console.log(decoded)
 
-            if (decoded.email !== req.query.email) {
-                res.status(403).send({ message: 'unauthorized access' })
-            }
-            console.log(email)
-            const query = { email: email };
-            const result = await reviewCollection.find(query);
-            res.send(result)
-        })
 
         app.get('/services', async (req, res) => {
             const size = parseInt(req.query.size);
             const query = {};
             const cursor = serviceCollection.find(query);
-            const services = await cursor.limit(size).toArray();
+            const services = await cursor.limit(size).sort({ _id: -1 }).toArray();
             res.send(services)
         })
 
@@ -87,13 +75,8 @@ async function run() {
         app.get('/review', async (req, res) => {
 
             let query = {};
-            if (req.query.email) {
-                query = {
-                    email: req.query.email
-                }
-            }
             const cursor = reviewCollection.find(query);
-            const reviews = await cursor.toArray();
+            const reviews = await cursor.sort({ _id: -1 }).toArray();
             res.send(reviews)
         })
 
@@ -119,7 +102,19 @@ async function run() {
             const result = await reviewCollection.updateOne(query, { $set: req.body });
             res.send(result)
         })
+        app.get('/review/:email', verifyJWT, async (req, res) => {
+            const email = req.params.email;
+            const decoded = req.decoded;
+            console.log(decoded)
 
+            if (decoded.email !== req.query.email) {
+                return res.status(403).send({ message: 'unauthorized access' })
+            }
+            console.log(email)
+            const query = { email: email };
+            const result = await reviewCollection.find(query);
+            res.send(result)
+        })
 
     }
     finally {
